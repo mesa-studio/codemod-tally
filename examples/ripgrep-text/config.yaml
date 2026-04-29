@@ -1,0 +1,8 @@
+name: console-to-logger
+description: Replace console.log calls with logger.info
+detector: detector.yaml
+recipe: recipe.md
+examples_dir: examples/
+scope:
+  include: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"]
+  exclude: ["**/*.test.js", "**/*.spec.js", "**/node_modules/**", "**/dist/**"]

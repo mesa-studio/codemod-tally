@@ -1,0 +1,5 @@
+type: semgrep
+rules:
+  - id: console-log
+    pattern: console.log(...)
+    languages: [javascript, typescript]

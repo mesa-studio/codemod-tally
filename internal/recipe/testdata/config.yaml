@@ -1,0 +1,8 @@
+name: console-to-logger
+description: Replace console.log with logger.info
+detector: detector_ripgrep.yaml
+recipe: recipe.md
+examples_dir: examples/
+scope:
+  include: ["**/*.js", "**/*.ts"]
+  exclude: ["**/*.test.js", "**/node_modules/**"]

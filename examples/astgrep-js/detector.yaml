@@ -1,0 +1,4 @@
+type: astgrep
+language: JavaScript
+rule:
+  pattern: console.log($$$ARGS)

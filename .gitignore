@@ -1,0 +1,14 @@
+# Go build outputs
+/bin/
+/dist/
+*.test
+*.out
+coverage.*
+
+# Local scratch data
+/.tmp/
+/tmp/
+
+# Editor and OS files
+.DS_Store
+*.swp
