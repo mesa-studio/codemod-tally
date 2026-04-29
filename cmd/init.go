@@ -55,7 +55,7 @@ var initCmd = &cobra.Command{
 			}
 		}
 		fmt.Printf("\nRecipe %q created at %s\n", name, dir)
-		fmt.Printf("Edit detector.yaml and recipe.md, then run: codemod-tally scan %s\n", name)
+		fmt.Print(initNextSteps(name))
 		return nil
 	},
 }
@@ -156,6 +156,16 @@ func writeRecipeFiles(dir string, files map[string]string) ([]fileAction, error)
 		actions = append(actions, action)
 	}
 	return actions, nil
+}
+
+func initNextSteps(name string) string {
+	return fmt.Sprintf(`
+Next steps:
+  1. Edit detector.yaml and recipe.md for the migration.
+  2. Run: codemod-tally doctor %s
+  3. Run: codemod-tally scan %s
+  4. Run: codemod-tally prompt %s
+`, name, name, name)
 }
 
 func configTemplate(name string) string {

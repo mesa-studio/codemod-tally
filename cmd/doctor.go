@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/mesa-studio/codemod-tally/internal/recipe"
 	"github.com/spf13/cobra"
@@ -83,7 +84,71 @@ func checkRecipeDoctor(recipePath string, lookPath lookPathFunc) []doctorResult 
 	}
 
 	results = append(results, checkExecutable(exe, true, lookPath))
+	results = append(results, checkRecipeReadiness(cfg)...)
 	return results
+}
+
+func checkRecipeReadiness(cfg *recipe.Config) []doctorResult {
+	var results []doctorResult
+
+	detectorPath := filepath.Join(cfg.Dir, cfg.Detector)
+	detectorData, err := os.ReadFile(detectorPath)
+	if err != nil {
+		return []doctorResult{{
+			Name:     "detector config",
+			OK:       false,
+			Required: true,
+			Message:  err.Error(),
+		}}
+	}
+	if containsAny(string(detectorData), []string{
+		"your\\.pattern",
+		"your.pattern",
+		"foo(...)",
+		"my-rule",
+		"rg -n 'pattern'",
+	}) {
+		results = append(results, doctorResult{
+			Name:     "detector readiness",
+			OK:       false,
+			Required: false,
+			Message:  "detector.yaml still contains placeholder values; edit it before scanning a real repository",
+		})
+	}
+
+	recipePath := filepath.Join(cfg.Dir, cfg.Recipe)
+	recipeData, err := os.ReadFile(recipePath)
+	if err != nil {
+		return append(results, doctorResult{
+			Name:     "recipe.md",
+			OK:       false,
+			Required: true,
+			Message:  err.Error(),
+		})
+	}
+	if containsAny(string(recipeData), []string{
+		"Describe the transformation here.",
+		"List exceptions",
+		"See examples/ directory for reference diffs.",
+	}) {
+		results = append(results, doctorResult{
+			Name:     "recipe readiness",
+			OK:       false,
+			Required: false,
+			Message:  "recipe.md still contains scaffold text; replace it with agent instructions before scanning",
+		})
+	}
+
+	return results
+}
+
+func containsAny(content string, needles []string) bool {
+	for _, needle := range needles {
+		if strings.Contains(content, needle) {
+			return true
+		}
+	}
+	return false
 }
 
 func requiredDetectorExecutable(detectorType string) (string, bool) {

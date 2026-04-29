@@ -70,3 +70,16 @@ func TestWriteRecipeFilesDoesNotOverwrite(t *testing.T) {
 		t.Fatalf("expected config.yaml skip action, got %+v", actions)
 	}
 }
+
+func TestInitNextStepsGuideAgentWorkflow(t *testing.T) {
+	got := initNextSteps("console-to-logger")
+	for _, want := range []string{
+		"codemod-tally doctor console-to-logger",
+		"codemod-tally scan console-to-logger",
+		"codemod-tally prompt console-to-logger",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("expected init next steps to contain %q:\n%s", want, got)
+		}
+	}
+}

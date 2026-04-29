@@ -34,6 +34,9 @@ codemod-tally init console-to-logger --template ripgrep-text
 $EDITOR ~/.codemod-tally/recipes/console-to-logger/detector.yaml
 $EDITOR ~/.codemod-tally/recipes/console-to-logger/recipe.md
 
+# Check that the recipe and its detector are ready
+codemod-tally doctor console-to-logger
+
 # Scan the current repository
 codemod-tally scan console-to-logger
 
@@ -69,6 +72,9 @@ flags: []
 YAML
 
 codemod-tally --dir "$repo" --recipe-dir "$recipes" --state-dir "$state" \
+  doctor console-to-logger
+
+codemod-tally --dir "$repo" --recipe-dir "$recipes" --state-dir "$state" \
   scan console-to-logger
 codemod-tally --dir "$repo" --recipe-dir "$recipes" --state-dir "$state" \
   status console-to-logger
@@ -92,6 +98,24 @@ codemod-tally --dir "$repo" --recipe-dir "$recipes" --state-dir "$state" \
 6. Continue until `codemod-tally status <name>` shows 0 remaining.
 
 The detector marks items done, not the agent.
+
+## Agent Workflow
+
+Codemod Tally is designed for agents such as Codex and Claude Code. A useful
+prompt is:
+
+```text
+Use Codemod Tally for this finite migration. First verify `codemod-tally`
+is installed and run `codemod-tally doctor`. Create or inspect the recipe,
+run `codemod-tally doctor <recipe>`, then `scan` and `prompt`. Work through
+`progress.md` top to bottom, edit target repo files only, never edit
+`progress.md` or `.scan-cache.json`, and rerun `scan` until remaining is 0.
+Stop and ask if the detector has false positives, the recipe is ambiguous,
+or a match is not transformable.
+```
+
+Agents should treat `codemod-tally scan` as the source of truth. Memory,
+checklists, and generated summaries are secondary to the detector result.
 
 ## Install
 
@@ -253,7 +277,15 @@ A task is a good fit if it is:
 
 Good fits: API migrations, import changes, language syntax upgrades, library replacements, style unification, deprecations.
 
-Poor fits: vague cleanup, broad redesigns, tasks requiring deep semantic understanding of the whole project, and work with no finite list of locations.
+## When Not To Use Codemod Tally
+
+Do not use Codemod Tally for:
+
+- vague cleanup or broad redesigns;
+- one-off edits where `rg` plus a direct edit is simpler;
+- migrations without a reliable detector;
+- tasks where every match requires deep product judgment;
+- work with no finite list of locations.
 
 ## Design principles
 

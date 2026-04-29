@@ -19,25 +19,39 @@ Do not use Codemod Tally for vague cleanup, open-ended redesigns, or changes tha
 
 1. Verify the CLI:
    ```bash
-   command -v codemod-tally && codemod-tally doctor
+   command -v codemod-tally || go install github.com/mesa-studio/codemod-tally@latest
+   command -v codemod-tally
+   codemod-tally doctor
    ```
 2. If no recipe exists, create one:
    ```bash
    codemod-tally init <recipe-name> --template ripgrep-text
    ```
-   Then edit `detector.yaml` and `recipe.md` before scanning.
-3. Run:
+   Then edit `detector.yaml` and `recipe.md`.
+3. Verify the recipe before scanning:
+   ```bash
+   codemod-tally doctor <recipe-name>
+   ```
+   Fix required failures. Treat readiness warnings as a signal that the scaffold still needs better detector or agent instructions.
+4. Run:
    ```bash
    codemod-tally scan <recipe-name>
    codemod-tally prompt <recipe-name>
    ```
-4. Work through `Remaining` items in `progress.md`, top to bottom.
-5. Edit target repo files only. Never edit `progress.md` or `.scan-cache.json`.
-6. If the recipe does not cover a case, write a short note to `journal.md` and skip it.
-7. After edits, run `codemod-tally scan <recipe-name>` again. Continue until remaining is 0.
+5. Work through `Remaining` items in `progress.md`, top to bottom.
+6. Edit target repo files only. Never edit `progress.md` or `.scan-cache.json`.
+7. If the recipe does not cover a case, write a short note to `journal.md` and skip it.
+8. After edits, run `codemod-tally scan <recipe-name>` again. Continue until remaining is 0.
 
 ## Rules
 
 - Trust `codemod-tally scan` over the agent's memory.
 - Use `codemod-tally status <recipe-name>` for progress without rerunning detectors.
-- Stop and ask when the detector output looks wrong, the recipe is ambiguous, or remaining items are not transformable.
+- Stop and ask when the detector output looks wrong, the recipe is ambiguous, required tools are missing, or remaining items are not transformable.
+
+## Do Not Use When
+
+- The task is vague cleanup or open-ended redesign.
+- The task is a one-off edit where `rg` is enough.
+- There is no reliable detector for the remaining work.
+- Every match requires deep product judgment before deciding whether to edit.
